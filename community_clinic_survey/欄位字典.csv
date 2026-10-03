@@ -1,0 +1,27 @@
+﻿代碼,欄位,型態,必填,下限或長度上限,上限
+county,縣市,enum,True
+district,鄉鎮市區,text,True,30
+type,醫療類別,enum,True
+specialty,主要科別／診療領域,enum,True
+role,填答身分,enum,True
+patients,每日約看診人次,number,False,0,3000
+days,每月開診天數,number,False,1,31
+doctors,醫師人數（含兼職）,number,False,1,100
+staff,非醫師人數（含兼職）,number,False,0,300
+period,資料月份,month,True
+quality,數字來源,enum,True
+purchase,每月耗材採購費（元）,number,False,0,10000000
+it,每月 IT 費（元）,number,False,0,3000000
+admin,每月行政人事／外包費（元）,number,False,0,10000000
+hours,每週行政與 IT 總工時（小時）,number,False,0,3000
+his,現有 HIS／FHIR 狀況,enum,True
+services,需要共用的服務,multi,True
+willingness,加入意願,enum,True
+conditions,必要加入條件,multi,False
+fee,每月最多願付費（元）,number,False,0,1000000
+expectedSaving,期待原支援費減少（%，未扣中心費）,number,False,0,100
+expectedHours,期待支援工時減少（%）,number,False,0,100
+standard,共同流程接受程度,enum,True
+fhir,FHIR 資料交換接受程度,enum,True
+insurance,商保／健保行政協作接受程度,enum,True
+note,其他建議,text,False,500
