@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="社區診所集中支援管理中心互動模擬：探索規模、成本、流程彈性與多方治理。所有數值皆為示範假設。">
+  <meta name="theme-color" content="#15594c"><meta name="robots" content="noindex,nofollow">
+  <title>共好 Clinic Commons｜社區診所集中支援管理中心</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%2315594c'/%3E%3Cpath d='M17 9h6v8h8v6h-8v8h-6v-8H9v-6h8z' fill='%23e5f1c6'/%3E%3C/svg%3E">
+  
+  
+<link rel="stylesheet" href="./styles.css?v=web-1">
+<script src="./app.js?v=web-1" defer></script>
+<script src="./care-model.js?v=web-1" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#simulation">跳至模擬器</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="共好 Clinic Commons 首頁"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M12 5h8v7h7v8h-7v7h-8v-7H5v-8h7z" fill="currentColor"/></svg></span><span>共好<span class="brand-en">CLINIC COMMONS</span></span></a>
+    <nav aria-label="主選單"><a href="#simulation" class="active">營運模擬</a><a href="#care-model">在宅損益模型</a><a href="#governance">流程與治理</a><a href="#assumptions">模型假設</a></nav>
+    <span class="header-tag"><span class="status-dot"></span> 網路部署版</span>
+  </header>
+  <main id="top">
+    <section id="simulation" class="simulation-section" aria-labelledby="page-title">
+      <div class="intro">
+        <div><div class="eyebrow">COMMUNITY CARE, SHARED SUPPORT</div><h1 id="page-title">社區診所集中支援管理中心</h1><p class="intro-sub">把支援集中，讓診療保有自己的步調。</p><p class="intro-detail">像微型企業一樣承擔固定成本，像小型工坊一樣保有流程習慣。<br class="desktop-break">從一組營運假設出發，探索共同支援的規模效益與代價。</p></div>
+        <div class="intro-art" aria-hidden="true"><svg viewBox="0 0 310 150"><path d="M55 48C90 48 84 93 142 82M255 44C226 44 220 83 166 82M78 130C93 130 105 94 142 89M254 124C220 124 212 96 166 89" fill="none" stroke="#aac7b9" stroke-width="2" stroke-dasharray="4 5"/><rect x="23" y="14" width="68" height="62" rx="17" fill="#e0eecb"/><rect x="220" y="12" width="64" height="62" rx="17" fill="#e8e1f3"/><rect x="38" y="101" width="73" height="43" rx="13" fill="#f7e5d2"/><rect x="224" y="97" width="70" height="43" rx="13" fill="#d9e9f6"/><g fill="none" stroke="#537367" stroke-width="2"><path d="M40 59V35l17-10 17 10v24H40m12 0V46h10v13m-5-25v9m-4-5h8M237 57V32h29v25m-22 0V43h15v14m-8-31v10m-5-5h10M56 127h37m-29-9v9m10-13v13m10-9v9M242 112h32v17h-32z"/></g><circle cx="153" cy="83" r="37" fill="#15594c"/><path d="M148 64h10v14h14v10h-14v14h-10V88h-14V78h14z" fill="#e4f0c9"/></svg></div>
+      </div>
+      <div class="notice"><span class="notice-icon" aria-hidden="true">i</span><p><strong>示範模型，非台灣實證資料。</strong> 金額為新台幣／月；採同等診療量比較，包含中心成本與建置攤提，上方支援成本指標與原始規模曲線、下方在宅損益曲線分別呈現；收入為示範假設，不推估醫療品質。</p><a href="#assumptions">查看假設 <span aria-hidden="true">↗</span></a></div>
+      <div class="workspace">
+        <aside class="control-panel" aria-labelledby="controls-title">
+          <div class="panel-heading"><div><span class="eyebrow small">01 / CONFIGURE</span><h2 id="controls-title">設定營運情境</h2></div><button id="reset" class="text-button" type="button">重設</button></div>
+          <fieldset class="preset-field"><legend>從情境開始</legend><div class="preset-group"><button type="button" data-preset="pilot">小型試辦</button><button type="button" data-preset="balanced" class="selected" aria-pressed="true">漸進共用</button><button type="button" data-preset="integrated">高度整合</button></div></fieldset>
+          <div class="control clinic-count"><div class="control-label"><label for="n">參與診所數量</label><div class="number-wrap"><input type="number" id="n-number" min="1" max="200" step="1" value="60" aria-label="參與診所數量精確輸入"><span>家</span></div></div><input type="range" id="n" min="1" max="200" value="60" step="1"><div class="range-end"><span>1 家</span><span>200 家</span></div></div>
+          <div class="controls-divider">共用服務配置</div>
+          <div id="service-controls"></div>
+          <div class="controls-divider">流程與成本實現</div>
+          <div id="process-controls"></div>
+          <label class="switch-row" for="exceptions"><span><strong>保留診所例外申請</strong><small>允許在共同規則內保有差異</small></span><input type="checkbox" id="exceptions" checked role="switch"><span class="switch-track" aria-hidden="true"></span></label>
+          <div class="control-note"><span aria-hidden="true">↗</span> 拖曳即時重算。金額與分攤細節可在下方「模型假設」調整。</div>
+        </aside>
+        <div class="result-panel">
+          <div class="results-heading"><div><span class="eyebrow small">02 / EXPLORE</span><h2>集中之後，改變多少？</h2></div><span class="live-badge"><span class="status-dot"></span> 即時試算</span></div>
+          <div class="metric-grid">
+            <article class="metric-card primary"><p id="saving-label">每家診所每月淨節省</p><div class="metric-value" id="net-saving">—</div><p class="metric-foot" id="saving-percent">含中心月費與建置攤提</p><span class="metric-glyph" aria-hidden="true">↗</span></article>
+            <article class="metric-card"><p>每家所需月費</p><div class="metric-value" id="required-fee">—</div><p class="metric-foot">中心全成本 ÷ 參與診所數</p></article>
+            <article class="metric-card"><p>中心每月總預算</p><div class="metric-value" id="center-budget">—</div><p class="metric-foot" id="budget-foot">固定＋變動＋建置攤提</p></article>
+            <article class="metric-card"><p>每家診所釋出工時</p><div class="metric-value" id="hours-saved">—</div><p class="metric-foot">行政與 IT 工時／月，非現金收益</p></article>
+          </div>
+          <div class="chart-row">
+            <article class="card cost-card"><div class="card-heading"><div><h3>一間診所的成本去向</h3><p>每家每月 · 萬元 · 含未改變的診療成本</p></div><span class="subtle-tag">同等診療量</span></div><div id="cost-chart" class="cost-chart" role="img" aria-label="單獨經營與集中支援成本比較"></div><div class="legend"><span><i style="--legend:#d5dcd7"></i>診療等不變成本</span><span><i style="--legend:#a9c9b8"></i>診所支援支出</span><span><i style="--legend:#235f50"></i>中心月費</span></div><div class="chart-insight" id="cost-insight"></div></article>
+            <article class="card budget-card"><div class="card-heading"><div><h3>中心收支能否站穩？</h3><p>收費試算與全成本回收</p></div><span class="small-icon" aria-hidden="true">＋</span></div><dl class="budget-lines" id="budget-lines"></dl><label class="fee-input-label" for="targetFee">試算每家月費 <div><input id="targetFee" type="number" min="0" max="200000" step="1" value="22000"><span>元</span></div></label><div id="budget-balance" class="budget-balance"></div><p class="micro">上方成本比較採「所需月費」；此試算收費僅用於中心收支，不改變資源成本。</p></article>
+          </div>
+          <article class="card scale-card"><div class="card-heading"><div><h3>規模擴大，何時開始划算？</h3><p>原始規模曲線：固定其他假設，試算 1–200 家的每家月淨節省</p></div><span id="threshold-label" class="threshold-badge"></span></div><div id="scale-chart" class="scale-chart"></div><div class="scale-footer"><span><i class="point-dot"></i> 目前規模 <strong id="current-scale">60 家</strong></span><span>支援成本節省門檻；不是在宅營運損益</span></div></article>
+          <div class="decision-strip" id="decision-insight" aria-live="polite"></div>
+          <div class="scenario-actions"><div><button type="button" id="pin-scenario" class="primary-button"><span aria-hidden="true">＋</span> 保留支援成本情境</button><span class="micro">保存在此瀏覽器，請匯出備份</span></div><button type="button" id="export-csv" class="secondary-button">匯出支援成本 CSV <span aria-hidden="true">↓</span></button></div>
+          <div id="scenario-comparison" hidden></div>
+        </div>
+      </div>
+    </section>
+
+<section id="care-model" class="card care-panel" aria-labelledby="care-title">
+<div class="eyebrow">SHARED MODEL · 4.0</div><h2 id="care-title">在宅醫療｜平台 × 在地單元</h2>
+<p>整合所附 MD 第四至九章。金額均為新台幣元／月；個案為每月活躍去重人數。所有預設係數為示範假設，打平點不代表最小有效規模（MES）。</p>
+<div class="care-toolbar"><label>計算模型 <select id="care-mode"><option value="integrated">三、平台＋整數在地單元</option><option value="simple">一、管理中心簡化損益</option><option value="local">二、單一在地照護單元</option></select></label><label>成本來源 <select id="care-source"><option value="manual">固定平台預算（報告情境）</option><option value="original">按原支援模型隨規模計算平台成本</option></select></label><label>會費口徑 <select id="care-fees"><option value="external">計入本模型收入</option><option value="internal">全網合併：沖銷內部會費</option></select></label></div>
+<div class="care-toolbar" id="care-presets"><button data-care-preset="0">① 只加 IT</button><button data-care-preset="1">② 流程改造</button><button data-care-preset="2">③ 加會費</button><button data-care-preset="3">④ 加補助</button><button id="care-simple">20 家輕量中心</button><button id="care-reset">重設新模型</button></div>
+<div id="care-fields" class="care-grid"></div>
+<details><summary>分區與安全服務上限</summary><p>每列格式：個案 Qr, 單元容量 kr, 安全服務上限, 額外交通與備援月成本。留白使用全網 ceil(Q/k)。啟用後 Q 由各區加總；單元數為 Σceil(Qr/kr)，各單元固定費仍使用同一 FL。額外費用僅填未含於 m 或 FL 的部分。</p><label for="care-regions">分區資料（每列一區）</label><textarea id="care-regions" rows="4" placeholder="900,300,1000,0&#10;230,150,300,20000"></textarea></details>
+<details><summary>急症療程與全天候容量（可選擇計入損益）</summary><p>E = Q × λ × e × a + 外部轉介；平均同時量 B = E × 平均療程日數／30。B 為穩態平均，不能代替尖峰排班。若 m 已含急症貢獻，請勿再勾選加計。</p><label><input type="checkbox" id="care-acute-add"> 將 E × 每療程淨貢獻加到損益（m 必須先排除急症）</label><div class="care-grid" id="care-acute-fields"></div></details>
+<div id="care-error" role="alert"></div><div class="card" style="padding:20px;margin:20px 0"><div class="card-heading"><div><h3>在宅營運損益｜診所規模雙線</h3><p>隨診所數與個案量，計入平台、在地單元、收入及補助</p></div><span id="care-scale-threshold" class="threshold-badge"></span></div><div id="care-scale-summary" class="chart-insight" aria-live="polite"></div><div id="care-scale-chart"></div><p class="micro">目前規模：<strong id="care-current-scale"></strong>。此圖與上方共用診所數及會費；平台成本依所選模式計算。</p></div><div id="care-results" aria-live="polite"></div>
+<div class="care-toolbar"><button id="care-export">匯出上下連動模型與曲線 CSV</button></div>
+<details><summary>公式、計算口徑與原模擬器的關係</summary><p><strong>雙線的差異：</strong>深綠平均趨勢以 Q/k 取代 ceil(Q/k)，按比例攤提在地單元費用；原支援模型的增聘配置也改用 max(0,n/K−1)，分中心採等量連續分配。淡紫實際線保留整數配置與原有公式，繪圖採水平延伸至下一取樣點、再垂直跳至該點損益的階梯連線。水平段僅是離散試算點的呈現方式，不表示該區間收入或損益不變；數字與打平點仍按原公式計算。平均趨勢是滿載容量的連續近似，不是已證實的長期成本曲線或可立即執行的人力方案，亦不是對鋸齒做視覺平滑。簡化模型沒有容量階梯時，兩線可能重疊；單一單元模型仍保留一個固定單元。</p>
+<p>模型一：Π = nf + Q(p−v) + S − FP。模型二：Π = mQ − FL + S（不計平台與會費）。模型三：Π = mQ + nf + S − FP − FL × U。急症與分區增量僅在啟用時另加／另扣。</p>
+<p>連動模式以原模擬器的完整中心月預算<strong>取代</strong> FP，已包含原有支援服務、建置攤提、協調及容量費；不再加一次報告平台成本。在地 FL 僅應填未含在中心預算的臨床配置。原模擬器的診所節省不當作新模型收入。原畫面的支援成本卡片與曲線衡量行政／IT成本；上方規模曲線恢復原始支援成本淨節省公式；本區雙線使用在宅損益公式。兩者共用診所數與會費，選擇「按原支援模型」時亦共用平台成本。診所數與會費雙向同步；每家個案 q 固定時 Q=round(nq)。調整 Q 會重新設定 q=Q/n。固定平台預算模式只固定 FP，仍同步兩區診所數與會費。</p>
+<p>固定 n 的首次打平個案，與 Q=nq 聯立的首次打平家數分開搜尋。分區啟用時，規模曲線依目前各區個案占比分配新增個案，採最大餘數法保留整數；各區容量、安全上限與額外月費維持固定。這是情境假設，不是需求預測。掃描上限為 100,000 案／200 家；後續仍可能因新增單元轉虧。</p>
+<p>報告 125 萬平台預算明細合計為 122 萬，兩值可手動切換。報告模型二的 12 萬／700 元需向上取整為 <strong>172 案</strong>（原表 171 案不足打平）。報告第 4.3 節的 63／84 家，需以固定成本 100 萬元解讀；若維持 40 萬則為 25／34 家。本工具一律按公式重新計算。</p>
+<p>FHIR 介接、RPM 設備、交通、家庭支持與後送成本需先界定是否已含在每案貢獻。預設不將健保點数視為實收金額，不以 IT 導入自動提高急症發生率。治理仍包含政府、醫療、照護及保險等多方。</p></details>
+<details><summary>所附 MD 原稿（保留來源與限制）</summary><pre class="care-report"># 在宅醫療社區診所集中管理模式整合報告（新版）
+
+**編製日期：2026年10月3日｜整合版2.0**
+
+&gt; 本報告截長補短整合三份分析稿：保留 Gemini 的雙層營運與政策架構、Claude 的制度背景與公平性討論，並採用 ChatGPT 的數字查核、成本重算、整數階梯模型與證據標記。所有關鍵數字均區分為官方依據、可溯源文獻或示範假設；模型結果不得誤作實證結論。
+
+## 執行摘要
+
+本報告探討社區診所集中管理的最小經濟規模、HIS–FHIR 與智慧醫材平台化、容量階梯、城鄉公平性及政策設計。規模不能只用「診所家數」表示，而應同時界定服務範圍、成本邊界、支付結構、人力配置、個案密度與地理條件。
+
+三份原稿的數字差異主要來自成本口徑不同：120–250 案多描述在地照護單元；20 家、400 案是管理中心簡化情境；30–50 家、1,000–3,000 案則涉及平台與區域單元的成本分攤。因此，不應將各稿數字直接平均或合併為單一門檻。
+
+「50 家診所」可作為平台試辦的條件式營運情境，但不是文獻證實的最小有效規模（MES）。在平台月成本 125 萬元、流程改造、50 家各繳 8,000 元會費、且無補助的假設下，整數配置首次打平約需 2,040 案；若再加每月 40 萬元經常補助，約需 1,130 案。這些是條件計算，不是市場需求或醫療效益證據。
+
+平台不能只靠採購 IT 而產生效益。HIS–FHIR 介接、設備物流、警示分流、訓練、資安、臨床責任與後送安排均有成本；資料交換成本可分攤，但實地照護與警示處理的人力不會因此消失。
+
+城鄉公平性應成為模型限制條件。偏鄉可能同時面臨較高的財務打平需求與較小的安全服務範圍；若以統一診所家數、按件給付及收案量考核，可能優先服務人口密集、交通便利或家庭支持較佳的個案。政策宜採「共用數位後台、在地分散服務」，並搭配基本量能支付、交通調整、家庭支持與替代服務保障。
+
+## 一、整合方法與證據標記
+
+本報告整合三份原稿，但不是依預先註冊方法完成的系統性文獻回顧。原稿中的營運數字、人力配置與成本假設，均視為待驗證的示範情境；本報告僅將可溯源的官方文件與學術文獻列為證據基礎。
+
+| 標記 | 意義 |
+|---|---|
+| `[R#]` | 外部可溯源的官方文件、學術文獻或機構報告 |
+| 【估算】 | 作者設定之示範參數，非市場報價、法規規定或實證結果 |
+| 【推論】 | 由模型或機制推得，尚未經實證 |
+| `[整合推導]` | 本報告重新計算或補充之數學、管理分析 |
+| 政策建議 | 制度設計選項，不代表已實施或已證實最適 |
+
+本報告不使用未經查核的「0.9 元點值」統一換算所有收入，也不把健保點數直接等同實收新台幣。實際申報、點值、加成、部分負擔及交通補償，仍應以適用服務日的官方公告為準。
+
+## 二、制度背景：居家照護與在宅急症須分開
+
+### 2.1 兩種服務不能合併估算
+
+一般居家醫療、重度居家醫療與安寧照護屬持續性照護；在宅急症照護則是在特定條件下提供住院替代。兩者的個案存量、新療程、訪視頻率、24 小時備援與後送需求不同，不能統一換算為「每案一個月相同工時」。
+
+115 年 3 月 18 日修訂的居家醫療照護整合計畫包含個案管理與 24 小時電話諮詢等服務內容；115 年 5 月 12 日公告的在宅急症照護計畫則另有緊急訪視、後送及照護期間每日護理實地訪視等要求。[R1][R2]
+
+### 2.2 影響成本模型的條文查核
+
+| 項目 | 查核結果 | 模型意義 |
+|---|---|---|
+| 一般醫師訪視費 | 05307C：1,631 點 [R1] | 原稿引用 1,553 點屬舊版，不得作為現行費率 |
+| 山地離島醫師訪視費 | 05308C：2,154 點 [R1] | 與一般費率差額為 523 點，約 32.1%，而非 156 點 |
+| 急症醫師收案 | 同一時段上限 20 人 [R2] | 是急症同時存量限制，不是所有居家個案的上限 |
+| 護理專業訓練 | 小組至少 1 名；每 10 名護理人員至少 1 名完成指定 Level II 以上訓練 [R2] | 不是「每 20 名病人配置 1 名護理師」 |
+| 急症護理訪視 | 照護期間每日實地訪視 [R2] | 直接影響外勤人力容量 |
+| 24 小時服務 | 電話專業諮詢，必要時緊急訪視或後送 [R2] | 不等於法定必須自建中央 5 人護理中心 |
+
+### 2.3 台灣早期執行資料的正確用途
+
+Chen 等人 2026 年發表於《Journal of the Formosan Medical Association》的研究，使用 2024 年 7 月至 2025 年 3 月行政資料，描述 2,158 位參與者，平均醫療費用為 31,856 點，遠端監測使用率為 22.6%。[R3]
+
+該研究可說明早期執行經驗，但不能推導 50 家診所為最適規模，也不能以平均醫療費用推得平台每療程固定獲利 1 萬元。制度費用、提供者成本與分配給平台的收入，是不同概念。
+
+## 三、理論架構：三種規模與兩層營運
+
+### 3.1 三種規模不能混用
+
+| 概念 | 定義 | 本報告能否確認 |
+|---|---|---|
+| 損益平衡規模 | 收入等於界定範圍內成本 | 可在示範參數下計算 |
+| 最小有效規模（MES） | 相同品質與服務組合下，長期平均成本接近最低 | 缺乏實證成本曲線，不能確認 |
+| 可持續服務配置 | 可承擔尖峰、休假、故障、替補及人員異動 | 需排班、地理與需求資料驗證 |
+
+本報告所有試算原則上屬於損益平衡規模，而非已證實的 MES。基層診所轉型研究與照護協調模擬支持共同分攤的方向，但不支持固定家數門檻。[R4][R5]
+
+### 3.2 兩層營運與三個治理尺度
+
+| 層級 | 功能 | 決定規模的變數 |
+|---|---|---|
+| 區域治理與支付 | 服務責任、風險分攤、監督與補助 | 人口需求、財源、城鄉分布 |
+| 第二層：共同平台 | HIS–FHIR、IT、資安、申報、採購、中央分流 | 系統種類、工單、個案與設備數 |
+| 第一層：在地單元 | 訪視、個管、給藥、設備交付、必要應變 | 交通時間、照護強度及備援 |
+
+診所可維持自主執業，但透過共同平台分攤資訊、申報、採購、資安與部分分流功能。臨床責任、資料責任、警示回應責任與後送責任，必須在合約與治理架構中明確分工。
+
+### 3.3 統一計量單位
+
+- $n$：實際付費診所家數。
+- $Q$：每月活躍、去重之常態管理個案。
+- $E$：每月新啟動急症療程數，不能等同 $Q$。
+- $B$：同時急症照護人數，用於急症醫師及每日外勤容量。
+- $k$：單一在地單元可承擔的常態個案容量，屬情境假設。
+- $U$：實際設置的在地單元數，必須為整數並符合地理分區。
+
+## 四、模型一：管理中心簡化損益
+
+### 4.1 基本公式
+
+以月為期間：
+
+$$
+\Pi=nf+Q(p-v)+S-F
+$$
+
+其中，$f$ 為每家診所月管理費；$p$ 為中心每案月收入；$v$ 為相同服務邊界下的每案變動成本；$S$ 為經常性補助；$F$ 為固定及既定容量區間內的成本。
+
+若 $Q=nq$ 且分母為正，則損益平衡所需診所數為：
+
+$$
+n_{BE}=\max\left(0,\left\lceil\frac{F-S}{f+q(p-v)}\right\rceil\right)
+$$
+
+此式適合平台帳目。若 $p$ 代表全部醫療收入，則必須同時扣除全部臨床成本；不能以只含行政成本的 $F$ 與 $v$，配對全部醫療收入。
+
+### 4.2 20 家與 50 家情境重建
+
+以下為示範假設：$f=10,000$ 元、$q=20$ 案、$p=800$ 元、$v=300$ 元、$S=0$。每家月貢獻為 20,000 元。
+
+| 情境 | 診所家數 | 常態個案 | 月總收入 | 月變動成本 | 可支應固定及階梯成本 |
+|---|---:|---:|---:|---:|---:|
+| 輕量管理中心 | 20 家 | 400 案 | 52 萬元 | 12 萬元 | 40 萬元 |
+| 擴充中心 | 50 家 | 1,000 案 | 130 萬元 | 30 萬元 | 100 萬元 |
+
+100 萬元是 50 家診所下的可支應額度，不是已取得的設備與人力報價。若先假設 50 家，再反推可負擔 100 萬元成本，最後又稱 50 家為最小規模，會形成循環論證。
+
+### 4.3 敏感度分析
+
+在固定成本 40 萬元、其他參數不變時：
+
+| 每家個案數 | 每家月貢獻 | 打平家數 | 對應個案 |
+|---:|---:|---:|---:|
+| 10 | 15,000 元 | 27 | 270 |
+| 20 | 20,000 元 | 20 | 400 |
+| 30 | 25,000 元 | 16 | 480 |
+| 40 | 30,000 元 | 14 | 560 |
+
+若不收每家固定費，40 萬元固定成本需由 800 案、每案 500 元貢獻支應；若每家 20 案，則需 40 家。若每案變動成本由 300 元升至 500 元或 700 元，維持其他假設，打平家數會上升至 63 家或 84 家。
+
+## 五、模型二：在地照護單元
+
+### 5.1 基本情境
+
+原稿採用相近的在地單元假設：一般居家個案每月貢獻約 700 元；加入在宅急症後，假設每月 3% 個案轉為急症療程、每療程貢獻約 1 萬元，攤提後增加約 300 元，合計約 1,000 元。
+
+| 在地型態 | 月固定成本假設 | 每案貢獻 1,000 元時兩平個案 | 每案貢獻 700 元時兩平個案 |
+|---|---:|---:|---:|
+| 輕量型 | 12 萬元 | 120 案 | 171 案 |
+| 標準型 | 22 萬元 | 220 案 | 315 案 |
+| 完整型 | 35 萬元 | 350 案 | 500 案 |
+
+上述均為【估算】。3% 不是本報告確認的急症發生率；1 萬元也不是健保規定的利潤。由 315 案降至 220 案約三成，只在固定成本不變、急症未觸發新增成本等前提下成立，不能直接稱為「參與在宅急症可降低 MES 三成」的實證結論。
+
+### 5.2 人力配置應視為排班構想
+
+原稿提出 120–150 案、3–4 位醫師、6–8 位護理師與 20–30 分鐘車程，或 150–250 案、至少 4 位醫師、1.5–2 名個管或護理。兩者的人力差異大，且缺乏一致的照護強度、全職當量、訪視頻率與值班定義。
+
+因此，不應將其合併為法定或通用最低配置，而應保留為待測試的排班構想。3–4 家診所可以是一個在地聯盟的招募設計，但診所家數不等於可投入醫師全職當量。官方規範中的 20 人，是急症同時收案上限。
+
+## 六、模型三：平台與在地單元整合損益
+
+### 6.1 平台成本預算
+
+以下均為【估算】，不是已取得報價：
+
+| 項目 | 月成本 |
+|---|---:|
+| IT 人力 5 名 | 55 萬元 |
+| 雲端、FHIR 服務、授權及稽核 | 12 萬元 |
+| HIS 介接開發攤提 | 10 萬元 |
+| 中央 24 小時護理分流 | 35 萬元 |
+| 集中申報與行政 | 10 萬元 |
+| **明細合計** | **122 萬元** |
+| **原稿試算使用值** | **125 萬元** |
+
+原稿未解釋 125 萬元與 122 萬元間的 3 萬元差額。為保持可比性，本報告主要重算採用 125 萬元，稱為「原稿預算情境」；另可提供 122 萬元敏感度，但不將差額視為已查證支出。
+
+### 6.2 整數單元模型
+
+令 $m$ 為扣除按案臨床與設備變動成本、尚未扣除在地單元固定成本的每案月貢獻；$F_L$ 為每單元月固定成本；$F_P$ 為平台月固定成本：
+
+$$
+\Pi(Q,n)=mQ+nf+S-F_P-F_LU(Q)
+$$
+
+在地理與個案可完全配置的簡化條件下：
+
+$$
+U(Q)=\left\lceil Q/k\right\rceil
+$$
+
+實際多區配置應改為：
+
+$$
+U=\sum_r\left\lceil Q_r/k_r\right\rceil
+$$
+
+因此，單一全網平均模型可能低估所需單元。若會費由診所醫療收入支付，計算全網合併收支時，內部轉付應沖銷，不能將同一醫療收入與會費重複計為外部收入。
+
+### 6.3 四種平台情境
+
+共同假設：$F_P=1,250,000$ 元、$F_L=170,000$ 元。情境一 $m=850$、$k=250$；情境二至四 $m=1,000$、$k=300$。情境三、四固定 50 家，每家會費 8,000 元，故 $nf=400,000$ 元；情境四另有每月補助 $S=400,000$ 元。
+
+| 情境 | 連續平均模型打平個案 | 整數單元首次打平個案 | 單元數 | 50 家時平均每家需案 |
+|---|---:|---:|---:|---:|
+| ①只加 IT、流程不改 | 7,353 | 7,471 | 30 | 149.42 |
+| ②流程改造、無會費補助 | 2,885 | 2,950 | 10 | 59.00 |
+| ③②加 50 家會費 | 1,962 | 2,040 | 7 | 40.80 |
+| ④③加月補助 40 萬元 | 1,039 | 1,130 | 4 | 22.60 |
+
+例如，情境③在 2,000 案時需 7 個單元：
+
+$$
+2,000\times1,000+400,000-1,250,000-7\times170,000=-40,000
+$$
+
+因此需 2,040 案才恰好打平。情境④在 1,050 案時需 4 個單元，仍虧損 80,000 元，需 1,130 案才打平。
+
+### 6.4 首次打平不等於持續打平
+
+情境④在 1,200 案時仍只需 4 個單元；但增加至 1,201 案即需第 5 個單元。依相同假設，月盈餘變為：
+
+$$
+1,201,000+800,000-1,250,000-850,000=-99,000
+$$
+
+因此，上述數字只是**首次可行點**，不能視為「達到後永遠不虧」的永久門檻。擴張策略必須同時安排下一階容量資金與新個案來源。
+
+若使用明細合計 122 萬元，四情境的整數首次打平點依序為 7,236、2,920、2,010、1,100 案。第一情境的首次可行配置由 30 個單元變為 29 個，顯示階梯成本會改變敏感度，不能一律線性推估。
+
+### 6.5 診所數與個案數必須聯立
+
+固定 50 家求個案數，與固定每家個案數求家數，是不同問題。若 $Q=nq$，須解：
+
+$$
+n(qm+f)+S\ge F_P+F_L\left\lceil nq/k\right\rceil
+$$
+
+不能把 50 家時的 40 萬元會費視為固定不變，再以個案數除以 20 推估 100 家。新增診所也會新增會費、介接、支援與管理負擔。
+
+## 七、HIS–FHIR、智慧醫材與流程改造
+
+### 7.1 HIS–FHIR 整合
+
+FHIR 是 HL7 的醫療資訊交換標準；TW Core 提供台灣核心實作規範。[R10][R11] 合約應明確指定版本、資料範圍、術語對應、欄位映射、資料驗證、身分核對、權限、稽核、監控、維護與院所訓練。
+
+每新增一家院所，不一定需要重新開發全部轉換器，但也不必然零成本。平台應比較自建、共用既有平台及委外維運的總持有成本，而非只比較初期建置費。
+
+美國居家基層醫療六案例研究指出，病歷與排程工具對行動照護的適配仍是營運問題。這支持改善共同工具的必要性，但不代表導入後必然可減少多少人力。[R6]
+
+### 7.2 RPM 與設備全生命週期
+
+遠端生理監測（RPM）的成本至少包括採購或租賃、連線、耗材、配送、教學、校正維修、清消、備品與退役。不能假設所有器材均可跨人共享；單次使用或個人專用耗材應按案計費。
+
+RPM 實作研究強調臨床流程、角色與技術導入問題；範疇回顧則將 RPM 置於整合照護、治理、人力與財務面向。兩者均未提供 50 家或 1,500 案的普遍門檻。[R8][R9]
+
+「15–25 急症床位使 RPM 邊際成本趨近零」缺乏足夠依據，不宜採用。若假設 30% 個案使用設備、每套月成本 500 元，形成每案 150 元平均成本，也只是配置假設；不同適應症、設備與告警頻率應分開估算。
+
+### 7.3 急症比例與流程改善
+
+較完整的急症療程數可表示為：
+
+$$
+E=Q\lambda ea+E_{external}
+$$
+
+其中：
+
+- $\lambda$：急症發生率。
+- $e$：臨床適合比例。
+- $a$：願意且可被團隊承接比例。
+- $E_{external}$：外部轉介。
+
+IT 或流程改善可能提高辨識與承接能力，也可能降低可避免急症；不能預設 IT 會提高急症發生率。每療程貢獻也須扣除新增照護、設備、後送與品質管理成本。
+
+## 八、容量階梯、排班與規模不經濟
+
+### 8.1 人數不等於全天候能力
+
+一個全年 24 小時持續有人值守的席位，每週需 168 小時。若每人可排 40 小時，未計休假、訓練、病假及交班，至少需要 4.2 名 FTE。這是排班算術，不是法定最低人數。
+
+On-call 待命、有人值守的電話席位，以及可即時外勤的醫護，是不同服務。IT 有 5 人，也不代表 5 人都可負責同一值班任務；架構師、介接工程師與設備支援人員，不能直接等同完整的全天候資安輪班。
+
+### 8.2 階梯成本的觸發因子
+
+$$
+C_{step}(W)=\sum_jK_j\mathbf{1}(W&gt;H_j)
+$$
+
+| 容量 | 合理驅動指標 | 不能直接替代的指標 |
+|---|---|---|
+| 個管 | 個案加權工時、接觸頻率 | 總診所家數 |
+| 急症醫護 | 同時急症量、每日訪視與應變 | 常態管理人數 |
+| 中央分流 | 告警量、處理時間、尖峰與服務時限 | 設備台數而不看告警 |
+| IT | 系統種類、工單及 SLA | 只看病人數 |
+| 設備 | 同時需求、周轉、故障備援 | 累積曾收案人數 |
+| 在地據點 | 實際路網與反應時間 | 行政區面積 |
+
+超過容量後，平均成本先跳升再攤薄，這是不可分割配置的結果，並不單獨證明長期規模不經濟。
+
+### 8.3 真正的規模不經濟
+
+若在相同品質與服務組合下，擴張持續增加跨層協調、客製、交通或重複作業，造成長期平均成本上升，才可稱為規模不經濟。服務半徑加倍使圓面積成四倍，不代表路線成本必然四倍或指數上升；必須以路網、個案分布與實際工時估算。
+
+平均成本與邊際成本亦應分開：
+
+$$
+AC=\frac{C}{Q}
+$$
+
+$MC$ 則是新增服務量所增加的成本。固定成本攤提下的平均成本下降，不宜直接標示為醫療服務邊際成本趨近零。
+
+## 九、城鄉差異與醫療公平性
+
+### 9.1 城鄉成本機制
+
+| 因素 | 都會常見情況 | 偏鄉常見情況 | 建模方式 |
+|---|---|---|---|
+| 密度與路程 | 較易累積近距離個案，但有壅塞及樓層阻礙 | 個案分散、天候與路網限制 | 實際工時與每趟服務數 |
+| 人力備援 | 跨隊支援選項較多 | 少數人休假即可影響服務 | 替補與待命成本 |
+| 設備及 IT | 維修配送較易 | 在途時間長、需在地備品 | 全周轉時間 |
+| 後送 | 支援院所通常較多 | 距離遠、替代性低 | 後送與應變時限 |
+| 家庭支持 | 也存在獨居、貧困及住宅限制 | 可能另疊加連線及照顧人力不足 | 按家庭需求分層 |
+
+原稿中的 15–30 分鐘車程、5–8 公里、每半天 1–6 案及 6 個月至 3 年成長期，均缺乏地區代表性資料，應列為試點需測量參數。不能斷言所有偏鄉永遠無法達標，也不能假定所有都會都容易達標。
+
+### 9.2 財務下限與安全服務上限
+
+令：
+
+- $Q_{BE,r}$：地區 $r$ 達到損益平衡所需服務量。
+- $Q_{feasible,r}$：地區 $r$ 在安全範圍、人力與需求限制下可服務的量。
+
+若：
+
+$$
+Q_{BE,r}&gt;Q_{feasible,r}
+$$
+
+則在既定支付、交通與人力條件下，該區沒有可自給自足的營運解。此時應調整收入、支付或配置，而不是只要求更多收案。
+
+區域總成本可拆解為：
+
+$$
+C_{total}=F_{shared}+\sum_r(F_{local,r}+v_rQ_r+C_{travel,r}+C_{backup,r}+C_{step,r})
+$$
+
+若交通工時已包含於 $v_r$ 或固定人力工時成本，不可重複加計；但仍可以工時描述其對外勤容量的排擠效果。偏鄉較高成本可能來自地理與必要備援，不宜直接視為管理低效率。
+
+### 9.3 公平性證據與風險機制
+
+WHO 將偏鄉人力不足與分布不均列為公平可近性的核心問題；Hart 的反向照護法則提供分析需求與供給背離的概念框架，但不是台灣在宅政策已造成不公平的證明。[R13][R14]
+
+CMS 的 2024 年 Acute Hospital Care at Home 研究摘要發現，參與者較常來自都會、較少領取低收入相關補助；病人選擇也限制成本比較的解釋。這支持檢查服務觸及差異，但不能直接轉為台灣因果結論。[R12]
+
+| 風險機制 | 可能結果 | 對應設計 |
+|---|---|---|
+| 相同給付、不調整路程 | 優先服務密集地區 | 交通與基本量能支付 |
+| 家庭、住宅與網路門檻 | 弱勢者被排除 | 設備、連線、照顧及教學支持 |
+| 只按收案量分配補助 | 大型都會平台更易取得資源 | 需求覆蓋與公平性考核 |
+| 既有人力轉移 | 原門診或偏鄉服務受排擠 | 監測原服務時數及人員流動 |
+| 提早削減實體替代服務 | 不適合在宅者缺乏選擇 | 保留住院、門診與後送 |
+| 無償家庭工作增加 | 醫療帳面節省、家庭負擔上升 | 同時估計家庭時間與自付成本 |
+
+在宅醫療能減少病人移動，也可能縮小交通障礙；但是否改善公平，取決於完整服務與支持配置，不能預先判為必然有利或必然有害。
+
+### 9.4 台灣可參考的區域合作
+
+衛福部 2025 年 12 月 9 日新聞稿描述中區「偏鄉區域聯防照護模式」，包含 24 小時聯合排班、急重症在地照護及社會處方箋；先由 7 家醫院合作，114 年再加入 2 家。[R15]
+
+這是跨機構支援的政策案例，可作為偏鄉聯合輪值與在地照護的參考，但不是已證明 50 家 FHIR 平台成本效益，或每個偏鄉急症在宅單元都能打平的證據。
+
+## 十、政策與經營建議
+
+### 10.1 建議架構：共用後台、在地服務
+
+都會與偏鄉可以共用 HIS–FHIR、資安、採購與申報後台；臨床外勤則依交通、後送與人力條件配置。偏鄉不必自行湊足 50 家，也不必複製一套完整 IT 團隊。
+
+「都會市場／偏鄉公共」雙軌設計有助提醒城鄉差異，但不宜僵化：都會也有弱勢需求，偏鄉也可能有有效率的共享服務。公費平台並未消除成本，只是改變付款與分攤者。
+
+### 10.2 支付與治理選項
+
+1. **基本量能支付**：對偏鄉及人口稀少地區，補貼基本營運、待命與備援能力，而非只按收案量給付。
+2. **交通與需求調整**：以實際車程、路網、每趟服務數及照護強度設計階梯式加成；避免以行政區面積或固定家數替代實際成本。
+3. **複雜度與公平加成**：對獨居、無照顧者、多重共病、行動不便或數位弱勢者，設計複雜度加成與支持服務，降低挑選輕症的誘因。
+4. **普及服務義務**：要求平台或聯盟揭露服務範圍、拒收原因、複雜度分布、後送安排與偏鄉覆蓋情形。
+5. **家庭支持與替代服務**：同步提供設備教學、連線協助、照顧者支持、住院、門診與後送選項，避免成本轉嫁家屬。
+6. **共同後台與區域聯防**：以區域醫院、基層診所與衛生所合作，解決 24 小時輪值、專科會診、設備支援及後送問題。
+
+### 10.3 試辦與驗證指標
+
+後續試辦不應只驗證「能否達到 50 家」，而應同時測量：
+
+- 每案加權工時、訪視頻率與交通時間。
+- 同時急症量、每日外勤量、後送率與緊急應變時間。
+- 告警量、誤報率、回應時間與分流人力負荷。
+- HIS 廠商數、介接成本、資安事件與系統可用性。
+- 設備周轉、故障率、耗材成本與維修時間。
+- 各區收案率、複雜度分布、拒收原因及偏鄉覆蓋率。
+- 提供者成本、家庭工時與自付成本，避免只看醫療帳面節省。
+
+## 十一、最終整合判斷
+
+1. **第一層在地照護單元**：120–250 案可作為示範性損益平衡範圍，但不是已證實的普遍 MES。
+2. **第二層共享平台**：約 1,000–3,000 案比單一「50 家診所」更合理；實際門檻取決於流程改造、會費、補助、HIS 集中度與地理配置。
+3. **50 家診所**：是特定條件下的營運假設，不是科學上已確定的最小規模。
+4. **平台效益**：來自流程、排班、資料交換、共同採購與責任分工的整合，不是單純增加 IT 設備。
+5. **偏鄉政策**：不應要求偏鄉自行達到都會平台規模；應採「共用後台、在地服務、基本量能支付、交通調整與區域聯防」。
+6. **後續研究重點**：不是再爭論 50 家或 220 案，而是取得實際工時、交通、個案強度、設備周轉、警示量、後送率與人力成本資料，建立可驗證的成本曲線。
+
+## 參考資料
+
+### 台灣官方文件與政策資料
+
+- [R1] 衛生福利部中央健康保險署. *全民健康保險居家醫療照護整合計畫（115 年 3 月 18 日修訂版）*. https://data.nhi.gov.tw
+- [R2] 衛生福利部中央健康保險署. *全民健康保險在宅急症照護試辦計畫（115 年 5 月 12 日公告版）*. https://www.nhi.gov.tw
+- [R3] Chen, et al. (2026). *Early experience and healthcare utilization in Taiwan’s Hospital-at-Home program*. *Journal of the Formosan Medical Association*.
+- [R10] Health Level Seven International (HL7). *FHIR Release 5 (v5.0.0): Summary Specification*. https://hl7.org/fhir/summary.html
+- [R11] 衛生福利部. *TW Core Implementation Guide*. https://twcore.mohw.gov.tw
+- [R15] 衛生福利部. (2025). *偏鄉區域聯防照護模式*. https://www.mohw.gov.tw/cp-16-84782-1.html
+
+### 國際文獻與機構報告
+
+- [R4] Martsolf, G. R., et al. (2016). *Cost of Transformation among Primary Care Practices Participating in a Medical Home Pilot*. *Journal of General Internal Medicine*. https://pmc.ncbi.nlm.nih.gov/articles/PMC4907938/
+- [R5] Cromwell, J., &amp; Greenwald, L. (2016). *Costs and Productivity in Patient-Centered Medical Homes: A Simulation*. RTI Press. https://www.ncbi.nlm.nih.gov/books/NBK512944/
+- [R6] Yao, N., et al. (2018). *Operation and challenges of home-based medical practices in the US: findings from six aggregated case studies*. *BMC Health Services Research*.
+- [R8] Lawrence, R. H., et al. *Remote patient monitoring implementation: clinical workflow, roles and technology adoption*.
+- [R9] Miranda, et al. *Remote patient monitoring and integrated care: a scoping review*.
+- [R12] Centers for Medicare &amp; Medicaid Services. (2024). *Fact Sheet: Report on the Study of the Acute Hospital Care at Home Initiative*. https://www.cms.gov/newsroom/fact-sheets/fact-sheet-report-study-acute-hospital-care-home-initiative
+- [R13] World Health Organization. (2021). *WHO guideline on health workforce development, attraction, recruitment and retention in rural and remote areas*. https://www.who.int/publications/i/item/9789240024229
+- [R14] Hart, J. T. (1971). *The Inverse Care Law*. *The Lancet*.
+
+### 原始整合稿
+
+- ChatGPT_Merge_Zai-Zhai-Yi-Liao-Ji-Zhong-Guan-Li-_San-Fen-Bao-Gao-Zheng-He-Yu-Wen-Xian-Cha-He-2.md
+- Gemini_Merge_code_artifact.md
+- Claude_Merge_Zai-Zhai-Yi-Liao-Ji-Zhong-Guan-Li-Mo-Shi-_Zheng-He-Bao-Gao-3.md
+</pre></details>
+</section>
+
+    <section id="governance" class="governance-section" aria-labelledby="governance-title">
+      <div class="section-heading"><div><span class="eyebrow">03 / PEOPLE & PROCESS</span><h2 id="governance-title">共用後援，不代表只有一種做法。</h2></div><p>標準化處理共通工作，例外機制容納診所差異。<br>成本之外，也把治理負擔放上桌。</p></div>
+      <div class="governance-grid">
+        <article class="card process-card"><div class="card-heading"><div><h3>效率、彈性與協調的三角關係</h3><p>隨左側假設即時變動</p></div></div><div class="process-meters" id="process-meters"></div><div class="hours-summary" id="hours-summary"></div><div class="process-boundary"><span class="boundary-label green">適合共同化</span><p>採購規格、帳務、排班工具、IT 維運、資料交換介面</p><span class="boundary-label purple">保留專業自主</span><p>臨床判斷、醫病溝通、個案照護；不以流程指標取代</p></div><p class="micro">彈性與協調分數為 0–100 的示意指標，非量表、品質評分或台灣調查值。協調分數越高代表投入需求越高。</p></article>
+        <article class="card stakeholders-card"><div class="card-heading"><div><h3>多方共同治理</h3><p>示範席次配置 · 所有單一方均未過半</p></div><span class="subtle-tag lavender">六方協作</span></div><div class="stakeholder-top"><div class="governance-donut" role="img" aria-label="診所30%、公部門20%、病人社區15%、醫護照護15%、HIS技術10%、私人保險10%"><div><strong>共同<br>支援中心</strong><span>共享決策</span></div></div><ul class="stakeholder-list"><li><i style="background:#39765e"></i><span>診所／醫師代表</span><strong>30%</strong></li><li><i style="background:#91b09a"></i><span>公部門／健保代表</span><strong>20%</strong></li><li><i style="background:#d6bf8c"></i><span>病人／社區代表</span><strong>15%</strong></li><li><i style="background:#a9a1c8"></i><span>醫護／照護專業</span><strong>15%</strong></li><li><i style="background:#8bb5ce"></i><span>HIS／技術業者</span><strong>10%</strong></li><li><i style="background:#e5ad94"></i><span>私人保險</span><strong>10%</strong></li></ul></div><div class="insurance-note"><strong>私人保險是參與者之一。</strong><p>可參與支付設計、風險分攤與成效討論；不單獨主導中心、臨床流程或資料使用。</p></div><div class="governance-rules"><div><span>決策</span><p>重大事項須至少 2/3 同意，且包含診所及病人代表支持。</p></div><div><span>責任</span><p>中心統籌服務與稽核；診所負責臨床決策；HIS 業者負責系統介接與維運。</p></div><div><span>制衡</span><p>採購揭露利益衝突、資料最小權限、可申訴與退出；出資不自動換取決策權。</p></div></div><p class="micro">此配置與規則是討論提案，並非現行制度；席次未納入成本公式。</p></article>
+      </div>
+    </section>
+<section class="card" id="regional" style="padding:24px;margin:24px 0"><h2>規模不經濟與區域分中心</h2><p>固定目前診所總數，比較 1–8 個中心。每個中心重複固定配置與建置費；採購與 IT 規模效益在各區計算。沒有跨區聯合議價，亦未計區域間轉介成本。</p><button type="button" id="expansion-demo">套用規模擴張示範</button><p>請在下方模型假設調整中心數、協調係數、每組容量及增聘費。預設新增費用為 0，保留原情境；示範鈕為 γ=80 元、K=40 家、J=120,000 元／月，均非實證。</p><div id="regional-result" aria-live="polite"></div><details><summary>公式與進階模組</summary><p>各區 n 家：新增協調費 = γ n(n−1)；新增組數 = max(0, ceil(n/K)−1)；容量費 = 新增組數 × J。網絡月預算為各區原預算、協調費與容量費之和；每家平均成本為加權診所留存成本加上網絡預算／總診所數。</p><p>γ 與 J 僅代表原服務費之外的增量；若原報價已包含，應設為 0。工時指標沿用任務工時，新增組數是配置容量，不等於新增任務或實際人數。</p><p>進階模組（尚未啟用，不納入結果）：排隊模型需案件到達率、處理速率與服務人員數；在宅交通模型需距離、密度、出勤頻率與待命成本。此處不把中心當成重症醫院，也不預測臨床品質。</p></details></section>
+    <section id="assumptions" class="assumptions-section" aria-labelledby="assumptions-title">
+      <div class="section-heading"><div><span class="eyebrow">04 / OPEN MODEL</span><h2 id="assumptions-title">讓每個假設，都可以被討論。</h2></div><p>模型版本 2.0 · 示範參數，不引用實證估計<br>平均診所、固定服務量、全成本平均分攤</p></div>
+      <details class="card assumption-details" open><summary><span><strong>基礎數字與分攤設定</strong><small>可編輯 · 更換成您自己的情境假設</small></span><span class="chevron" aria-hidden="true">＋</span></summary><div class="assumption-grid" id="assumption-inputs"></div><div class="assumption-note">分攤方式固定為各診所等額，參與診所視為同規模。沒有預設補助、商保挹注、利潤或融資利息。例外處理成本及中心人力服務已列於變動費，不再重複加計。</div></details>
+      <details class="card formula-details"><summary><span><strong>計算公式、係數與解讀限制</strong><small>展開檢查模型如何得到結果</small></span><span class="chevron" aria-hidden="true">＋</span></summary><div class="formula-content"><p><strong>符號：</strong>N＝診所數；p／t／a／s／d／r 分別為採購、IT、共用行政、標準化、流程差異與成本實現比例，均轉為 0–1；e＝保留例外時為 1，否則為 0。所有金額為元，所有係數皆為自行設定的示範假設。</p><table class="formula-table"><thead><tr><th>項目</th><th>公式／設定</th></tr></thead><tbody>
+      <tr><td>規模效應 q</td><td>1 − exp(−(N−1) / 40)。以飽和曲線表示議價邊際效益遞減；不是統計估計。</td></tr>
+      <tr><td>每家採購節省</td><td>採購基準 × p × 18% × q。1 家時無團購折扣。</td></tr>
+      <tr><td>每家 IT 節省</td><td>IT 基準 × t × (30% + 25% × q)。中心 IT 支出另列。</td></tr>
+      <tr><td>每家行政現金節省</td><td>行政基準 × a × (30% + 40% × s) × r。r 表示可減少聘用、外包或加班支出的比例；未實現的工時不折算為現金。</td></tr>
+      <tr><td>中心固定月成本 F</td><td>固定基礎 + 120,000p + 160,000t + 180,000a + 100,000s。即使各服務設為零，仍計已設立中心的固定基礎。</td></tr>
+      <tr><td>中心每家變動月成本 V</td><td>1,500p + 2,200t + 5,500a + 1,200s + 2,800asd × (有例外機制：1；無：0.4) + 3,000td(1−s)。末兩項分別是例外／衝突處理與異質系統調整費。</td></tr>
+      <tr><td>建置與導入 I</td><td>中心建置基礎 + N × 30,000 × (a+t+s) / 3；按設定月數 M 平均攤提。未估融資、稅務與汰換。</td></tr>
+      <tr><td>中心預算 B 與所需月費</td><td>B＝F + NV + I/M；每家月費＝B/N。為全成本回收所需費用，非市場報價。</td></tr>
+      <tr><td>成本比較</td><td>每家集中後成本＝基準總成本 − 採購／IT／行政節省 + B/N。全體總成本＝每家成本 × N；中心不重複加計。節省轉正門檻逐一檢查 1–200 家。</td></tr>
+      <tr><td>中心收支</td><td>試算每家月費 × N − B。收支含攤提，非現金流；全成本回收月費不含利潤，亦無預設補助。</td></tr>
+      <tr><td>診所釋出工時 H</td><td>基準工時 × [(0.42a+0.18t+0.18s) × (1−0.30d(1−s)) − 0.06asd − 0.02easd]，下限為 0。屬行政與 IT 工作。</td></tr>
+      <tr><td>中心支援工時 C</td><td>80 + 240(p+t+a)/3 + N × [55a(1−0.35s)+10t+5p+8dsa]。是成本中既有服務的工時表示，不另外加計費用。全體淨省工時＝NH−C。</td></tr>
+      <tr><td>流程彈性指標</td><td>100 − (45s+15a+8t)(1+0.25d) + 18es，限制於 0–100。單獨經營設為 100 作參考，僅表示本地流程選擇空間。</td></tr>
+      <tr><td>協調投入指標</td><td>10 + 40sd + 20a + 15t + 10√(N/200) + 6es，限制於 0–100。單獨經營的跨診所協調設為 0，不代表診所沒有其他管理工作。</td></tr>
+      </tbody></table><div class="limits-note"><strong>適用範圍</strong><p>用於比較假設與討論營運設計；未處理科別、城鄉、診療量、薪資、健保支付與個別 HIS 契約差異，亦未估病人結果、醫療風險、營收增加、臨床容量上限與退出成本。工時、成本及指標為平行示範模型，並非工時乘薪資即可完全核對。正式規劃應以實際帳務及流程訪談校準。</p></div></div></details>
+    </section>
+  </main>
+  <footer><div class="footer-brand">共好 <span>CLINIC COMMONS</span></div><p>讓規模服務診所，讓治理服務社區。</p><span>示範模擬 v2.0 · 無病人資料</span></footer>
+  <div id="toast" class="toast" role="status"></div>
+
+
+<noscript><p style="padding:24px">此模擬器需要啟用 JavaScript，才能顯示曲線與計算結果。</p></noscript>
+</body>
+</html>
