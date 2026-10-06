@@ -1,0 +1,30 @@
+醫療健康數據週報｜網路部署版（自動同步）
+
+部署方式
+1. 解壓縮 ZIP。
+2. 將 index.html、styles.css、app.js、health-editorial.png、.nojekyll 放在網站同一目錄。
+3. 使用 HTTPS 網址開啟 index.html。可部署於一般靜態網站主機或 GitHub Pages。
+4. 不需要安裝套件、執行建置或設定 API 金鑰。
+
+同步方式
+已設定原 Google Sheet 的工作表（gid=0）。
+每次開啟或回到頁面時讀取；頁面保持可見時每 5 分鐘檢查。
+依「迄日」選取最新一期，同日再按「起日」、資料列順序判定。
+提供手動重新同步與同步時間；失敗時顯示提示，保留本次瀏覽已讀取的內容。
+Google 端可能有短暫更新延遲，網頁須能連線到 docs.google.com。
+
+試算表欄位（A–F）
+期別、起日、迄日、主管摘要、週報全文、來源連結。
+日期格式：YYYY-MM-DD。摘要、全文支援現有 Markdown 標題、粗體、清單、表格與連結。
+新增週報只須新增資料列並填好迄日與全文，無須重新部署網站。
+原表必須維持網站訪客可讀的存取方式；若改為限制存取，自動讀取將失敗。
+更換資料來源時，修改 app.js 的 SHEET_ID 及查詢網址 gid。
+
+檔案說明
+index.html：頁面結構。
+styles.css：色彩、版面與手機響應式樣式。
+app.js：Google Sheet 讀取、最新一期判定與內容呈現。
+health-editorial.png：醫療卡通插圖。
+.nojekyll：GitHub Pages 靜態檔案設定。
+
+此 ZIP 為獨立部署版，不包含 ChatGPT 網站的登入限制。部署後的瀏覽權限由您的網站主機設定決定。
