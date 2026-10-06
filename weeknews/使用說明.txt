@@ -1,0 +1,27 @@
+照護動向研究週報｜Google Sheet 自動同步部署版
+
+部署：解壓縮後，將全部檔案放在網站同一目錄，覆蓋舊版同名檔案。支援 GitHub Pages 及一般靜態網站。舊 data.js 已不使用，可移除。
+本機：保持網路連線，使用瀏覽器開啟 index.html。
+
+同步方式：
+1. 每次開啟網頁時讀取原 Google Sheet。
+2. 網頁保持顯示時每五分鐘更新；切回頁面時也會更新。
+3. 可點選「立即更新」。
+4. 依「產出日期」挑選日期最大的一列，不依資料列順序。日期相同時使用較後方的一列。
+5. 同一天較後列即使內容未完整仍會呈現；請填妥整列後再填產出日期。
+6. 日期、篇數、判讀、精選、背景閱讀、請益問題與草稿均來自該列。
+7. Google 的資料服務可能短暫快取，更新不保證秒級反映。
+
+來源：
+https://docs.google.com/spreadsheets/d/13SE_Cs_DcJO0L-qWpTd7ONI6BpEumQHsj2niN9odFws/edit
+工作表：工作表1（gid=0）
+本次已確認允許任何人唯讀，並成功驗證公開資料端點。
+
+請保留原六個欄名與 A–F 欄配置。產出日期請使用 Google Sheet 日期格式或 YYYY/MM/DD。各項以 1.、2.、3. 分項。
+不需要重新上傳週報內容，只需在表格更新或新增一期。
+連線失敗時顯示明確錯誤；已有本次頁面成功讀取內容時會保留並標示「上次成功」，不會冒充最新。
+
+檔案：index.html、style.css、app.js、config.js、care.png、.nojekyll。
+config.js 可調整表格 ID、gid 與重新讀取間隔。
+此版使用 Google 公開唯讀資料，未改動表格分享權限，未包含私密存取憑證或登入功能。
+若網站有 Content-Security-Policy，需允許載入 https://docs.google.com 的 script；本機也需連線至 Google。
